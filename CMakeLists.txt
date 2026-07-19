@@ -102,3 +102,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
+
+# ==============================================================================
+# Dynamic files config
+# ==============================================================================
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/ConfigSync.cmake)
+setup_config_sync(${PROJECT_NAME})

@@ -3,6 +3,7 @@
 #include <string_view>
 
 namespace ConfigConstants {
+    inline constexpr std::string_view CONFIG_FILEPATH = "config/config.json";
     inline constexpr std::string_view ENGINE_VERSION = "1.0.0";
 
     inline constexpr std::string_view APP_NAME = "SpinoCore Engine";
