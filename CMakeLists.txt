@@ -9,6 +9,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # ======================================
+# Compile options
+# ======================================
+option(BUILD_TESTS "Enable building unit tests with GoogleTest" OFF)
+
+# ======================================
 # Final build
 # ======================================
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
@@ -18,11 +23,39 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 # ======================================
 set(ENGINE_SOURCES
     "include/SpinoCore/Engine.h"
+
+    # Config
+    "include/SpinoCore/Config/ConfigEntry.h"
+    "include/SpinoCore/Config/EngineConfig.h"
+
+    # Logs
+    "include/SpinoCore/Logs/EngineLogger.h"
     "src/Engine.cpp"
+
+    #Config
+    "src/Config/ConfigHelper.h"
+    "src/Config/ConfigHelper.cpp"
+    "src/Config/Constants.h"
+    "src/Config/EngineConfig.cpp"
+
+    # Logs
+    "src/Logs/EngineLogger.cpp"
+
+    # FileSystem
+    "src/FileSystem/FileReader.cpp"
+    "src/FileSystem/FileReader.h"
+    "src/FileSystem/FileWriter.cpp"
+    "src/FileSystem/FileWriter.h"
+
+    #Utils
+    "src/Utils/JSONUtils.cpp"
+    "src/Utils/JSONUtils.h"
 )
 
 set(EXTERNAL_SOURCES
-        #"${CMAKE_CURRENT_SOURCE_DIR}/external/nlohmann/json.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/nlohmann/json.hpp"
+        include/SpinoCore/Config/EngineConfig.h
+        include/SpinoCore/Config/ConfigEntry.h
 )
 
 add_library(${PROJECT_NAME} STATIC ${ENGINE_SOURCES} ${EXTERNAL_SOURCES})
@@ -36,6 +69,36 @@ target_include_directories(${PROJECT_NAME}
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
-        #"${CMAKE_CURRENT_SOURCE_DIR}/external"
+        "${CMAKE_CURRENT_SOURCE_DIR}/external"
 )
 
+# ======================================
+# Get 3rd party libraries
+# ======================================
+include(FetchContent)
+set(FETCH_CONTENT_BASE_DIR "${CMAKE_BINARY_DIR}/third_party")
+
+set(SDL_SHARED OFF CACHE BOOL "Disable SDL shared library" FORCE)
+set(SDL_STATIC ON CACHE BOOL "Enable SDL static library" FORCE)
+set(SDL_TESTS OFF CACHE BOOL "Disable SDL tests" FORCE)
+set(SDL_EXAMPLES OFF CACHE BOOL "Disable SDL examples" FORCE)
+set(SDL_DOCS OFF CACHE BOOL "Disable SDL docs" FORCE)
+
+FetchContent_Declare(
+        "SDL3"
+        GIT_REPOSITORY "https://github.com/libsdl-org/SDL.git"
+        GIT_TAG        "release-3.2.0"
+)
+FetchContent_MakeAvailable("SDL3")
+
+# ======================================
+# Link libraries
+# ======================================
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
+
+# ======================================
+# Include tests configuration if enabled
+# ======================================
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()

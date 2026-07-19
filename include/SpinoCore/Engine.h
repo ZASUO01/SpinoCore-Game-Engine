@@ -19,5 +19,12 @@ public:
     void Run();
 private:
     [[nodiscard]] bool Initialize();
+    void SetupConfig() const;
+    void SetupLogger() const;
+
     void Shutdown();
+
+    // internal modules struct. Pimpl patern
+    struct InternalModules;
+    std::unique_ptr<InternalModules> mInternalModules;
 };
