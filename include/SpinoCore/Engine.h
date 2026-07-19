@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include "Utils/DeepPimpl.h"
 
 class Engine {
 public:
@@ -24,7 +25,7 @@ private:
 
     void Shutdown();
 
-    // internal modules struct. Pimpl patern
+    // internal modules' struct. Pimpl patern
     struct InternalModules;
-    std::unique_ptr<InternalModules> mInternalModules;
+    DeepPimpl<InternalModules> mInternalModules;
 };

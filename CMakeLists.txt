@@ -30,7 +30,9 @@ set(ENGINE_SOURCES
 
     # Logs
     "include/SpinoCore/Logs/EngineLogger.h"
-    "src/Engine.cpp"
+
+    # Utils
+    "include/SpinoCore/Utils/DeepPimpl.h"
 
     #Config
     "src/Config/ConfigHelper.h"
@@ -50,6 +52,8 @@ set(ENGINE_SOURCES
     #Utils
     "src/Utils/JSONUtils.cpp"
     "src/Utils/JSONUtils.h"
+
+    "src/Engine.cpp"
 )
 
 set(EXTERNAL_SOURCES
