@@ -1,6 +1,7 @@
 #include "SpinoCore/Engine.h"
 
 #include "Config/ConfigHelper.h"
+#include "Config/Constants.h"
 #include "SpinoCore/Config/EngineConfig.h"
 #include "SpinoCore/Logs/EngineLogger.h"
 
@@ -45,7 +46,11 @@ bool Engine::Initialize() {
     return true;
 }
 
-void Engine::SetupConfig() const {
+void Engine::SetupConfig() {
+    EngineLogger::SetLoggingLevel(static_cast<EngineLogger::Level>(ConfigConstants::LOG_LEVEL));
+    EngineLogger::SetSDLInternalLoggingLevel(static_cast<EngineLogger::Level>(ConfigConstants::INTERNAL_LOG_LEVEL));
+    EngineLogger::Initialize();
+
     mInternalModules->engineConfig = ConfigHelper::GetInitialConfig();
     mInternalModules->appConfig = std::make_unique<EngineConfig>();
 }
@@ -58,7 +63,6 @@ void Engine::SetupLogger() const {
 
     EngineLogger::SetLoggingLevel(static_cast<EngineLogger::Level>(level));
     EngineLogger::SetSDLInternalLoggingLevel(static_cast<EngineLogger::Level>(internalLevel));
-    EngineLogger::Initialize();
 }
 
 void Engine::Shutdown() {

@@ -19,7 +19,7 @@ public:
     void Run();
 private:
     [[nodiscard]] bool Initialize();
-    void SetupConfig() const;
+    void SetupConfig();
     void SetupLogger() const;
 
     void Shutdown();
