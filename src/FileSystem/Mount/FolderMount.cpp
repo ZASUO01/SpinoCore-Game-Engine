@@ -1,0 +1,83 @@
+#include "FolderMount.h"
+#include "../IO/FileReader.h"
+#include "SpinoCore/Logs/EngineLogger.h"
+
+namespace FileSystem::Mount {
+    FolderMount::FolderMount(std::filesystem::path rootPath, const bool isReadOnly)
+    :mRootPath(std::move(rootPath)), mIsReadOnly(isReadOnly), mIsMounted(false)
+    {}
+
+    bool FolderMount::Initialize() {
+        if (!std::filesystem::exists(mRootPath)) {
+            EngineLogger::Error("[FOLDER MOUNT] The path {} doesn't exists.", mRootPath.string());
+            return false;
+        }
+
+        if (!std::filesystem::is_directory(mRootPath)) {
+            EngineLogger::Error("[FOLDER MOUNT] This path {} is not a directory.", mRootPath.string());
+            return false;
+        }
+
+        mRootPath = std::filesystem::weakly_canonical(mRootPath);
+        mIsMounted = true;
+        return true;
+    }
+
+    bool FolderMount::Exists(const std::string_view localPath) const {
+        if (!mIsMounted) {
+            return false;
+        }
+
+        const auto targetPath = ResolvePhysicalPath(localPath);
+
+        if (!targetPath) {
+            return false;
+        }
+
+        return std::filesystem::exists(*targetPath) && std::filesystem::is_regular_file(*targetPath);
+    }
+
+    std::optional<std::vector<uint8_t> > FolderMount::Read(const std::string_view localPath) const {
+        if (!mIsMounted) {
+            return std::nullopt;
+        }
+
+        auto targetPath = ResolvePhysicalPath(localPath);
+        if (!targetPath || !std::filesystem::exists(*targetPath)) {
+            return std::nullopt;
+        }
+
+        IO::FileReader reader(targetPath->string());
+        if (!reader.IsValid()) {
+            return std::nullopt;
+        }
+
+        std::vector<uint8_t> data = reader.ReadBinary();
+
+        if (data.empty()) {
+            return std::nullopt;
+        }
+
+        return data;
+    }
+
+    std::optional<std::filesystem::path> FolderMount::ResolvePhysicalPath(const std::string_view localPath) const {
+        if (localPath.empty()) {
+            return std::nullopt;
+        }
+
+        if (localPath.find("..") != std::string_view::npos) {
+            return std::nullopt;
+        }
+
+        const std::filesystem::path relativeTarget(localPath);
+
+        if (relativeTarget.is_absolute()) {
+            return std::nullopt;
+        }
+
+        const std::filesystem::path fullPath = mRootPath / relativeTarget;
+
+        return std::filesystem::weakly_canonical(fullPath);
+    }
+}

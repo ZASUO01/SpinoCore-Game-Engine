@@ -15,8 +15,8 @@ FetchContent_MakeAvailable(googletest)
 
 set(TEST_SOURCES
         "Config/EngineConfigTest.cpp"
-        "FileSystem/FileReaderTest.cpp"
-        "FileSystem/FileWriterTest.cpp"
+        "FileSystem/IO/FileReaderTest.cpp"
+        "FileSystem/IO/FileWriterTest.cpp"
         "Utils/JSONUtilsTest.cpp"
 )
 

@@ -1,7 +1,7 @@
 #include <fstream>
 #include <gtest/gtest.h>
-#include "FileSystem/FileReader.h"
-#include "FileSystem/FileWriter.h"
+#include "../../src/FileSystem/IO/FileReader.h"
+#include "../../src/FileSystem/IO/FileWriter.h"
 #include "nlohmann/json.hpp"
 #include "SpinoCore/Logs/EngineLogger.h"
 #include "Utils/JSONUtils.h"
@@ -22,8 +22,8 @@ protected:
     }
 
     void SetUp() override {
-        FileWriter validFile(validFileName);
-        validFile.Write(R"({
+        FileSystem::IO::FileWriter validFile(validFileName);
+        validFile.WriteString(R"({
             "name": "SpinoCore-Engine",
             "FPS": 60,
             "assets": {
@@ -33,8 +33,8 @@ protected:
             }
         })");
 
-        FileWriter invalidFile(invalidFileName);
-        invalidFile.Write(R"({ "name": "Missing closure" )");
+        FileSystem::IO::FileWriter invalidFile(invalidFileName);
+        invalidFile.WriteString(R"({ "name": "Missing closure" )");
     }
 
     void TearDown() override {
@@ -45,7 +45,7 @@ protected:
 
 
 TEST_F(JSONUtilsFixture, ShouldLoadValidJson) {
-    FileReader reader(validFileName);
+    FileSystem::IO::FileReader reader(validFileName);
     EXPECT_TRUE(reader.IsValid());
 
     json result;
@@ -56,7 +56,7 @@ TEST_F(JSONUtilsFixture, ShouldLoadValidJson) {
 }
 
 TEST_F(JSONUtilsFixture, ShouldFailOnMalformedJsonSyntax) {
-    FileReader reader(invalidFileName);
+    FileSystem::IO::FileReader reader(invalidFileName);
     EXPECT_TRUE(reader.IsValid());
 
     json result;
@@ -67,7 +67,7 @@ TEST_F(JSONUtilsFixture, ShouldFailOnMalformedJsonSyntax) {
 }
 
 TEST_F(JSONUtilsFixture, ShouldPassWithValidRequiredFields) {
-    FileReader reader(validFileName);
+    FileSystem::IO::FileReader reader(validFileName);
     EXPECT_TRUE(reader.IsValid());
 
     json result;
@@ -78,7 +78,7 @@ TEST_F(JSONUtilsFixture, ShouldPassWithValidRequiredFields) {
 }
 
 TEST_F(JSONUtilsFixture, ShouldFailWhenRequiredFieldIsMissing) {
-    FileReader reader(validFileName);
+    FileSystem::IO::FileReader reader(validFileName);
     EXPECT_TRUE(reader.IsValid());
 
     json result;
@@ -90,7 +90,7 @@ TEST_F(JSONUtilsFixture, ShouldFailWhenRequiredFieldIsMissing) {
 }
 
 TEST_F(JSONUtilsFixture, ShouldPassWhenDepthIsWithinLimits) {
-    FileReader reader(validFileName);
+    FileSystem::IO::FileReader reader(validFileName);
     EXPECT_TRUE(reader.IsValid());
 
     json result;
@@ -100,7 +100,7 @@ TEST_F(JSONUtilsFixture, ShouldPassWhenDepthIsWithinLimits) {
 }
 
 TEST_F(JSONUtilsFixture, ShouldFailWhenExceedsMaxDepth) {
-    FileReader reader(validFileName);
+    FileSystem::IO::FileReader reader(validFileName);
     EXPECT_TRUE(reader.IsValid());
 
     json result;

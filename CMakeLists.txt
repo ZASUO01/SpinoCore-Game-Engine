@@ -44,10 +44,10 @@ set(ENGINE_SOURCES
     "src/Logs/EngineLogger.cpp"
 
     # FileSystem
-    "src/FileSystem/FileReader.cpp"
-    "src/FileSystem/FileReader.h"
-    "src/FileSystem/FileWriter.cpp"
-    "src/FileSystem/FileWriter.h"
+    "src/FileSystem/IO/FileReader.cpp"
+    "src/FileSystem/IO/FileReader.h"
+    "src/FileSystem/IO/FileWriter.cpp"
+    "src/FileSystem/IO/FileWriter.h"
 
     #Utils
     "src/Utils/JSONUtils.cpp"

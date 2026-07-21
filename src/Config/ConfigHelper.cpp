@@ -1,5 +1,5 @@
 #include "ConfigHelper.h"
-#include "FileSystem/FileReader.h"
+#include "../FileSystem/IO/FileReader.h"
 #include "SpinoCore/Config/EngineConfig.h"
 #include "Constants.h"
 #include "nlohmann/json.hpp"
@@ -21,7 +21,7 @@ namespace ConfigHelper {
 
         LogsConfig logsConfig;
         
-        if (FileReader file(std::string{ConfigConstants::CONFIG_FILEPATH}); file.IsValid()) {
+        if (FileSystem::IO::FileReader file(std::string{ConfigConstants::CONFIG_FILEPATH}); file.IsValid()) {
             if (json root; JSONUtils::LoadJSON(file.GetStream(), root) && root.is_object()) {
                 if (root.contains("logs") && root["logs"].is_object()) {
                     root["logs"].get_to(logsConfig);
