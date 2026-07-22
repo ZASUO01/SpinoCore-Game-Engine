@@ -14,7 +14,7 @@ namespace FileSystem::Mount {
         [[nodiscard]] bool IsReadOnly() const override { return mIsReadOnly; }
 
     private:
-        std::optional<std::filesystem::path> ResolvePhysicalPath(std::string_view localPath) const;
+        [[nodiscard]] std::optional<std::filesystem::path> ResolvePhysicalPath(std::string_view localPath) const;
 
         std::filesystem::path mRootPath;
         bool mIsReadOnly;
