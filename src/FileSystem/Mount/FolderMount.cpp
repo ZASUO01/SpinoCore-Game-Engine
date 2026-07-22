@@ -9,17 +9,19 @@ namespace FileSystem::Mount {
 
     bool FolderMount::Initialize() {
         if (!std::filesystem::exists(mRootPath)) {
-            EngineLogger::Error("[FOLDER MOUNT] The path {} doesn't exists.", mRootPath.string());
+            EngineLogger::Error("[FOLDER MOUNT] Failed to mount. The path {} doesn't exists.", mRootPath.string());
             return false;
         }
 
         if (!std::filesystem::is_directory(mRootPath)) {
-            EngineLogger::Error("[FOLDER MOUNT] This path {} is not a directory.", mRootPath.string());
+            EngineLogger::Error("[FOLDER MOUNT] Failed to mount. The path {} is not a directory.", mRootPath.string());
             return false;
         }
 
         mRootPath = std::filesystem::weakly_canonical(mRootPath);
         mIsMounted = true;
+
+        EngineLogger::Info("[FOLDER MOUNT] Successfully mounted at: {}", mRootPath.string());
         return true;
     }
 
@@ -39,6 +41,7 @@ namespace FileSystem::Mount {
 
     std::optional<std::vector<uint8_t> > FolderMount::Read(const std::string_view localPath) const {
         if (!mIsMounted) {
+            EngineLogger::Error("[FOLDER MOUNT] Attempted to read '{}' before mount was initialized.", localPath);
             return std::nullopt;
         }
 
@@ -49,12 +52,14 @@ namespace FileSystem::Mount {
 
         IO::FileReader reader(targetPath->string());
         if (!reader.IsValid()) {
+            EngineLogger::Error("[FOLDER MOUNT] Denied read access to existing file: {}", targetPath->string());
             return std::nullopt;
         }
 
-        std::vector<uint8_t> data = reader.ReadBinary();
+        std::vector<uint8_t> data = reader.GetBinary();
 
         if (data.empty()) {
+            EngineLogger::Warn("[FOLDER MOUNT] Read 0 bytes from file. {}", targetPath->string());
             return std::nullopt;
         }
 
@@ -67,12 +72,14 @@ namespace FileSystem::Mount {
         }
 
         if (localPath.find("..") != std::string_view::npos) {
+            EngineLogger::Warn("[FOLDER MOUNT] Path traversal is not allowed '{}'", localPath);
             return std::nullopt;
         }
 
         const std::filesystem::path relativeTarget(localPath);
 
         if (relativeTarget.is_absolute()) {
+            EngineLogger::Warn("[FOLDER MOUNT] Absolute paths are not allowed: '{}'", localPath);
             return std::nullopt;
         }
 

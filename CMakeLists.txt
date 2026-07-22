@@ -48,6 +48,9 @@ set(ENGINE_SOURCES
     "src/FileSystem/IO/FileReader.h"
     "src/FileSystem/IO/FileWriter.cpp"
     "src/FileSystem/IO/FileWriter.h"
+    "src/FileSystem/Mount/MountPoint.h"
+    "src/FileSystem/Mount/FolderMount.cpp"
+    "src/FileSystem/Mount/FolderMount.h"
 
     #Utils
     "src/Utils/JSONUtils.cpp"
