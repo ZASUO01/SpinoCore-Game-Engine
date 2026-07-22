@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include <filesystem>
 #include <string>
+
+#include "FileSystem/IO/FileReader.h"
 #include "FileSystem/Mount/FolderMount.h"
 #include "FileSystem/IO/FileWriter.h"
 #include "SpinoCore/Logs/EngineLogger.h"
@@ -99,4 +101,42 @@ TEST_F(FolderMountTest, ShouldCheckReadOnly) {
 
     const FileSystem::Mount::FolderMount writeMount(testDir, false);
     EXPECT_FALSE(writeMount.IsReadOnly());
+}
+
+TEST_F(FolderMountTest, ShouldWriteFile) {
+    std::filesystem::create_directories(testDir / "test");
+
+    FileSystem::Mount::FolderMount mount(testDir, false);
+    ASSERT_TRUE(mount.Initialize());
+
+    const bool success = mount.Write("test/test.txt", std::vector<uint8_t>{'T', 'E', 'S', 'T'});
+
+    EXPECT_TRUE(success);
+
+    FileSystem::IO::FileReader reader(testDir / "test" /"test.txt");
+    EXPECT_TRUE(reader.IsValid());
+
+    auto data = reader.GetBinary();
+    auto text = std::string(data.begin(), data.end());
+
+    EXPECT_EQ(text, "TEST");
+}
+
+TEST_F(FolderMountTest, ShouldFailToWriteOnInvalidDirectory) {
+    FileSystem::Mount::FolderMount mount(testDir, false);
+    ASSERT_TRUE(mount.Initialize());
+
+    const bool success = mount.Write("invalid/test.txt", std::vector<uint8_t>{'T', 'E', 'S', 'T'});
+
+    EXPECT_FALSE(success);
+    EXPECT_FALSE(std::filesystem::exists(testDir / "invalid" / "test.txt"));
+}
+
+TEST_F(FolderMountTest, ShouldFailToWriteOnReadOnlyMount) {
+    FileSystem::Mount::FolderMount mount(testDir, true);
+    ASSERT_TRUE(mount.Initialize());
+
+    const bool success = mount.Write(testFileName, std::vector<uint8_t>{'T', 'E', 'S', 'T'});
+
+    EXPECT_FALSE(success);
 }

@@ -1,5 +1,6 @@
 #include "FolderMount.h"
 #include "../IO/FileReader.h"
+#include "FileSystem/IO/FileWriter.h"
 #include "SpinoCore/Logs/EngineLogger.h"
 
 namespace FileSystem::Mount {
@@ -64,6 +65,26 @@ namespace FileSystem::Mount {
         }
 
         return data;
+    }
+
+    bool FolderMount::Write(std::string_view localPath, const std::vector<uint8_t> &data) {
+        if (!mIsMounted || mIsReadOnly) {
+            EngineLogger::Error("[FOLDER MOUNT] Attempted to write '{}' before mount was initialized or in a read only mount.", localPath);
+            return false;
+        }
+
+        auto targetPath = ResolvePhysicalPath(localPath);
+        if (!targetPath) {
+            return false;
+        }
+
+        IO::FileWriter writer(targetPath->string());
+        if (!writer.IsValid()) {
+            EngineLogger::Error("[FOLDER MOUNT] Failed to access file {} for writing", targetPath->string());
+            return false;
+        }
+
+        return writer.WriteBinary(data.data(), data.size());
     }
 
     std::optional<std::filesystem::path> FolderMount::ResolvePhysicalPath(const std::string_view localPath) const {

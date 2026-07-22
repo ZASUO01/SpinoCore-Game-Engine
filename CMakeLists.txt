@@ -44,6 +44,8 @@ set(ENGINE_SOURCES
     "src/Logs/EngineLogger.cpp"
 
     # FileSystem
+    "src/FileSystem/Core/PathResolver.cpp"
+    "src/FileSystem/Core/PathResolver.h"
     "src/FileSystem/IO/FileReader.cpp"
     "src/FileSystem/IO/FileReader.h"
     "src/FileSystem/IO/FileWriter.cpp"
