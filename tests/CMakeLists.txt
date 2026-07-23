@@ -17,6 +17,8 @@ set(TEST_SOURCES
         "Config/EngineConfigTest.cpp"
 
         #FileSystem
+        "FileSystem/Core/PathResolverTest.cpp"
+        "FileSystem/Core/VirtualFileSystemTest.cpp"
         "FileSystem/IO/FileReaderTest.cpp"
         "FileSystem/IO/FileWriterTest.cpp"
         "FileSystem/Mount/FolderMountTest.cpp"

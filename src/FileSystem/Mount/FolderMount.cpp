@@ -68,8 +68,13 @@ namespace FileSystem::Mount {
     }
 
     bool FolderMount::Write(std::string_view localPath, const std::vector<uint8_t> &data) {
-        if (!mIsMounted || mIsReadOnly) {
-            EngineLogger::Error("[FOLDER MOUNT] Attempted to write '{}' before mount was initialized or in a read only mount.", localPath);
+        if (!mIsMounted) {
+            EngineLogger::Error("[FOLDER MOUNT] Attempted to write '{}' before mount was initialized.", localPath);
+            return false;
+        }
+
+        if (mIsReadOnly) {
+            EngineLogger::Error("[FOLDER MOUNT] Attempted to write '{}' in a read-only mount.", localPath);
             return false;
         }
 

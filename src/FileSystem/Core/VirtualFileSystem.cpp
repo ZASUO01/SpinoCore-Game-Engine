@@ -3,6 +3,15 @@
 #include "FileSystem/Mount/MountPoint.h"
 
 namespace FileSystem::Core {
+    std::unique_ptr<VirtualFileSystem> VirtualFileSystem::Create() {
+        auto vsf = std::make_unique<VirtualFileSystem>(ConstructorKey{});
+
+        return vsf;
+    }
+
+    VirtualFileSystem::VirtualFileSystem(ConstructorKey) {}
+    VirtualFileSystem::~VirtualFileSystem() = default;
+
     bool VirtualFileSystem::Mount(const std::string_view protocol, std::unique_ptr<Mount::MountPoint> mountPoint) {
         if (protocol.empty() || !mountPoint) {
             return false;
@@ -20,7 +29,6 @@ namespace FileSystem::Core {
         }
 
         std::lock_guard lock(mMutex);
-
         const auto it = mMounts.find(std::string(parsed->protocol));
         if (it == mMounts.end()) {
             return false;

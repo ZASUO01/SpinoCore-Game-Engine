@@ -46,6 +46,8 @@ set(ENGINE_SOURCES
     # FileSystem
     "src/FileSystem/Core/PathResolver.cpp"
     "src/FileSystem/Core/PathResolver.h"
+    "src/FileSystem/Core/VirtualFileSystem.cpp"
+    "src/FileSystem/Core/VirtualFileSystem.h"
     "src/FileSystem/IO/FileReader.cpp"
     "src/FileSystem/IO/FileReader.h"
     "src/FileSystem/IO/FileWriter.cpp"

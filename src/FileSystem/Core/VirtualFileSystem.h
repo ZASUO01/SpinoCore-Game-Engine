@@ -1,7 +1,8 @@
 #pragma once
 #include <memory>
+#include <mutex>
 #include <optional>
-#include <string_view>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -12,10 +13,14 @@ namespace FileSystem::Mount {
 namespace FileSystem::Core {
     class VirtualFileSystem {
     public:
-        VirtualFileSystem() = default;
-        ~VirtualFileSystem() = default;
+        [[nodiscard]] static std::unique_ptr<VirtualFileSystem> Create();
 
-        // prevent copy
+        // Public constructor with private pass key
+        class ConstructorKey{ friend class VirtualFileSystem; ConstructorKey(){}};
+        explicit VirtualFileSystem(ConstructorKey);
+        ~VirtualFileSystem();
+
+        // Prevent copy
         VirtualFileSystem(const VirtualFileSystem&) = delete;
         VirtualFileSystem& operator=(const VirtualFileSystem&) = delete;
 

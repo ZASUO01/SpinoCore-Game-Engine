@@ -1,5 +1,7 @@
 #include "PathResolver.h"
 
+#include "SpinoCore/Logs/EngineLogger.h"
+
 namespace FileSystem::Core::PathResolver {
     std::optional<VirtualPath> Parse(std::string_view fullVirtualPath){
         if (fullVirtualPath.empty()) {
@@ -9,13 +11,20 @@ namespace FileSystem::Core::PathResolver {
         constexpr std::string_view delimiter = "://";
         const size_t delimiterPos = fullVirtualPath.find(delimiter);
 
-        if (delimiterPos == std::string_view::npos || delimiterPos == 0) {
+        if (delimiterPos == std::string_view::npos) {
+            EngineLogger::Warn("[PATH RESOLVER] Missing '://' delimiter in path: '{}'", fullVirtualPath);
+            return std::nullopt;
+        }
+
+        if (delimiterPos == 0) {
+            EngineLogger::Warn("[PATH RESOLVER] Protocol cannot be empty: '{}'", fullVirtualPath);
             return std::nullopt;
         }
 
         const size_t pathStart = delimiterPos + delimiter.length();
 
         if (pathStart >= fullVirtualPath.length()) {
+            EngineLogger::Warn("[PATH RESOLVER] Local path cannot be empty after protocol: '{}'", fullVirtualPath);
             return std::nullopt;
         }
 
@@ -27,10 +36,11 @@ namespace FileSystem::Core::PathResolver {
 
     bool IsValidPath(const std::string_view path) {
         if (path.empty()) {
-            if (path.empty()) return false;
+            return false;
         }
 
         if (path.front() == '/') {
+            EngineLogger::Warn("[PATH RESOLVER] Paths cannot start with a slash: '{}'", path);
             return false;
         }
 
@@ -39,6 +49,7 @@ namespace FileSystem::Core::PathResolver {
         for (const char c : path) {
             if (c == '/') {
                 if (lastWasSlash) {
+                    EngineLogger::Warn("[PATH RESOLVER] Consecutive slashes '//' are forbidden: '{}'", path);
                     return false;
                 }
                 lastWasSlash = true;
@@ -52,6 +63,7 @@ namespace FileSystem::Core::PathResolver {
                                         (c >= '0' && c <= '9');
 
             if (const bool isValidSymbol = c == '_' || c == '-' || c == '.'; !isAlphaNumeric && !isValidSymbol) {
+                EngineLogger::Warn("[PATH RESOLVER] Invalid character '{}' found in path: '{}'", c, path);
                 return false;
             }
         }
