@@ -117,5 +117,14 @@ endif()
 # ==============================================================================
 # Dynamic files config
 # ==============================================================================
-include(${CMAKE_CURRENT_LIST_DIR}/cmake/ConfigSync.cmake)
-setup_config_sync(${PROJECT_NAME})
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/EnsureDirectory.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/SyncDirectory.cmake)
+
+set(ENGINE_CONFIG_SRC "${CMAKE_SOURCE_DIR}/@config")
+set(ENGINE_ASSETS_SRC "${CMAKE_SOURCE_DIR}/@assets")
+
+ensure_directory(${ENGINE_CONFIG_SRC} "This folder is where you can put a config.json file to configure the engine. Please do not remove it.")
+ensure_directory(${ENGINE_ASSETS_SRC} "This folder is where you can put all of your project assets. Please do not remove it.")
+
+directory_sync(${PROJECT_NAME} ${ENGINE_CONFIG_SRC} "${CMAKE_BINARY_DIR}/@config")
+directory_sync(${PROJECT_NAME} ${ENGINE_ASSETS_SRC} "${CMAKE_BINARY_DIR}/@assets")
