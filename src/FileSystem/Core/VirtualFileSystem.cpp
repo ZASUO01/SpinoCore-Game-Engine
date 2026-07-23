@@ -1,4 +1,6 @@
 #include "VirtualFileSystem.h"
+
+#include <ranges>
 #include "PathResolver.h"
 #include "FileSystem/Mount/MountPoint.h"
 
@@ -34,8 +36,8 @@ namespace FileSystem::Core {
             return false;
         }
 
-        for (auto mountIt = it->second.rbegin(); mountIt != it->second.rend(); ++mountIt) {
-            if ((*mountIt)->Exists(parsed->path)) {
+        for (const auto & mountIt : std::views::reverse(it->second)) {
+            if (mountIt->Exists(parsed->path)) {
                 return true;
             }
         }
@@ -56,9 +58,9 @@ namespace FileSystem::Core {
             return std::nullopt;
         }
 
-        for (auto mountIt = it->second.rbegin(); mountIt != it->second.rend(); ++mountIt) {
-            if ((*mountIt)->Exists(parsed->path)) {
-                return (*mountIt)->Read(parsed->path);
+        for (const auto & mountIt : std::views::reverse(it->second)) {
+            if (mountIt->Exists(parsed->path)) {
+                return mountIt->Read(parsed->path);
             }
         }
 
@@ -78,9 +80,9 @@ namespace FileSystem::Core {
             return false;
         }
 
-        for (auto mountIt = it->second.rbegin(); mountIt != it->second.rend(); ++mountIt) {
-            if (!(*mountIt)->IsReadOnly()) {
-                return (*mountIt)->Write(parsed->path, data);
+        for (const auto & mountIt : std::views::reverse(it->second)) {
+            if (!mountIt->IsReadOnly()) {
+                return mountIt->Write(parsed->path, data);
             }
         }
 

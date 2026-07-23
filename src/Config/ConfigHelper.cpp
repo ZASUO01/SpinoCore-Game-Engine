@@ -7,8 +7,8 @@
 
 namespace {
     struct LogsConfig {
-        uint8_t logLevel = ConfigConstants::LOG_LEVEL;
-        uint8_t internalLogLevel = ConfigConstants::INTERNAL_LOG_LEVEL;
+        uint8_t logLevel = Config::Constants::LOG_LEVEL;
+        uint8_t internalLogLevel = Config::Constants::INTERNAL_LOG_LEVEL;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(LogsConfig, logLevel, internalLogLevel);
@@ -21,7 +21,7 @@ namespace ConfigHelper {
 
         LogsConfig logsConfig;
         
-        if (FileSystem::IO::FileReader file(std::string{ConfigConstants::CONFIG_FILEPATH}); file.IsValid()) {
+        if (FileSystem::IO::FileReader file(std::string{Config::Constants::CONFIG_FILENAME}); file.IsValid()) {
             if (json root; JSONUtils::LoadJSON(file.GetStream(), root) && root.is_object()) {
                 if (root.contains("logs") && root["logs"].is_object()) {
                     root["logs"].get_to(logsConfig);

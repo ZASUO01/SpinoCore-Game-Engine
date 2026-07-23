@@ -41,34 +41,34 @@ protected:
 };
 
 TEST_F(FolderMountTest, ShouldInitializeValidDirectory) {
-    FileSystem::Mount::FolderMount mount(testDir);
-    EXPECT_TRUE(mount.Initialize());
+    const auto mount = FileSystem::Mount::FolderMount::Create(testDir);
+    EXPECT_NE(mount, nullptr);
 }
 
 TEST_F(FolderMountTest, ShouldFailInitIfOnInvalidDirectory) {
-    FileSystem::Mount::FolderMount mount("invalid_directory");
-    EXPECT_FALSE(mount.Initialize());
+    const auto mount = FileSystem::Mount::FolderMount::Create("invalid_directory");
+    EXPECT_EQ(mount, nullptr);
 }
 
 TEST_F(FolderMountTest, ShouldFailIfPathIsAFile) {
     const std::filesystem::path filePath = testDir / testFileName;
-    FileSystem::Mount::FolderMount mount(filePath);
+    const auto mount = FileSystem::Mount::FolderMount::Create(filePath);
 
-    EXPECT_FALSE(mount.Initialize());
+    EXPECT_EQ(mount, nullptr);
 }
 
 TEST_F(FolderMountTest, ShouldCheckIfFileExists) {
-    FileSystem::Mount::FolderMount mount(testDir);
-    ASSERT_TRUE(mount.Initialize());
+    const auto mount = FileSystem::Mount::FolderMount::Create(testDir);
+    EXPECT_NE(mount, nullptr);
 
-    EXPECT_TRUE(mount.Exists(testFileName));
+    EXPECT_TRUE(mount->Exists(testFileName));
 }
 
 TEST_F(FolderMountTest, ShouldReadFile) {
-    FileSystem::Mount::FolderMount mount(testDir);
-    ASSERT_TRUE(mount.Initialize());
+    const auto mount = FileSystem::Mount::FolderMount::Create(testDir);
+    EXPECT_NE(mount, nullptr);
 
-    auto data = mount.Read(testFileName);
+    auto data = mount->Read(testFileName);
     ASSERT_TRUE(data.has_value());
 
     const std::string content(data->begin(), data->end());
@@ -76,40 +76,42 @@ TEST_F(FolderMountTest, ShouldReadFile) {
 }
 
 TEST_F(FolderMountTest, ShouldPreventPathTraversal) {
-    FileSystem::Mount::FolderMount mount(testDir);
-    ASSERT_TRUE(mount.Initialize());
+    const auto mount = FileSystem::Mount::FolderMount::Create(testDir);
+    EXPECT_NE(mount, nullptr);
 
     const std::string invalidPath = "../" + testDir.string() + "/" + testFileName;
 
-    EXPECT_FALSE(mount.Exists(invalidPath));
-    EXPECT_FALSE(mount.Read(invalidPath).has_value());
+    EXPECT_FALSE(mount->Exists(invalidPath));
+    EXPECT_FALSE(mount->Read(invalidPath).has_value());
 }
 
 TEST_F(FolderMountTest, ShouldPreventAbsolutePaths) {
-    FileSystem::Mount::FolderMount mount(testDir);
-    ASSERT_TRUE(mount.Initialize());
+    const auto mount = FileSystem::Mount::FolderMount::Create(testDir);
+    EXPECT_NE(mount, nullptr);
 
     const std::filesystem::path absolutePath = std::filesystem::absolute(testDir / testFileName);
 
-    EXPECT_FALSE(mount.Exists(absolutePath.string()));
-    EXPECT_FALSE(mount.Read(absolutePath.string()).has_value());
+    EXPECT_FALSE(mount->Exists(absolutePath.string()));
+    EXPECT_FALSE(mount->Read(absolutePath.string()).has_value());
 }
 
 TEST_F(FolderMountTest, ShouldCheckReadOnly) {
-    const FileSystem::Mount::FolderMount readOnlyMount(testDir, true);
-    EXPECT_TRUE(readOnlyMount.IsReadOnly());
+    const auto readOnlyMount = FileSystem::Mount::FolderMount::Create(testDir, true);
+    EXPECT_NE(readOnlyMount, nullptr);
+    EXPECT_TRUE(readOnlyMount->IsReadOnly());
 
-    const FileSystem::Mount::FolderMount writeMount(testDir, false);
-    EXPECT_FALSE(writeMount.IsReadOnly());
+    const auto writeMount = FileSystem::Mount::FolderMount::Create(testDir, false);
+    EXPECT_NE(writeMount, nullptr);
+    EXPECT_FALSE(writeMount->IsReadOnly());
 }
 
 TEST_F(FolderMountTest, ShouldWriteFile) {
     std::filesystem::create_directories(testDir / "test");
 
-    FileSystem::Mount::FolderMount mount(testDir, false);
-    ASSERT_TRUE(mount.Initialize());
+    const auto mount = FileSystem::Mount::FolderMount::Create(testDir, false);
+    EXPECT_NE(mount, nullptr);
 
-    const bool success = mount.Write("test/test.txt", std::vector<uint8_t>{'T', 'E', 'S', 'T'});
+    const bool success = mount->Write("test/test.txt", std::vector<uint8_t>{'T', 'E', 'S', 'T'});
 
     EXPECT_TRUE(success);
 
@@ -123,20 +125,20 @@ TEST_F(FolderMountTest, ShouldWriteFile) {
 }
 
 TEST_F(FolderMountTest, ShouldFailToWriteOnInvalidDirectory) {
-    FileSystem::Mount::FolderMount mount(testDir, false);
-    ASSERT_TRUE(mount.Initialize());
+    const auto mount = FileSystem::Mount::FolderMount::Create(testDir, false);
+    EXPECT_NE(mount, nullptr);
 
-    const bool success = mount.Write("invalid/test.txt", std::vector<uint8_t>{'T', 'E', 'S', 'T'});
+    const bool success = mount->Write("invalid/test.txt", std::vector<uint8_t>{'T', 'E', 'S', 'T'});
 
     EXPECT_FALSE(success);
     EXPECT_FALSE(std::filesystem::exists(testDir / "invalid" / "test.txt"));
 }
 
 TEST_F(FolderMountTest, ShouldFailToWriteOnReadOnlyMount) {
-    FileSystem::Mount::FolderMount mount(testDir, true);
-    ASSERT_TRUE(mount.Initialize());
+    const auto mount = FileSystem::Mount::FolderMount::Create(testDir, true);
+    EXPECT_NE(mount, nullptr);
 
-    const bool success = mount.Write(testFileName, std::vector<uint8_t>{'T', 'E', 'S', 'T'});
+    const bool success = mount->Write(testFileName, std::vector<uint8_t>{'T', 'E', 'S', 'T'});
 
     EXPECT_FALSE(success);
 }

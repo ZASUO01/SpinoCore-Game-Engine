@@ -4,7 +4,17 @@
 #include "SpinoCore/Logs/EngineLogger.h"
 
 namespace FileSystem::Mount {
-    FolderMount::FolderMount(std::filesystem::path rootPath, const bool isReadOnly)
+    std::unique_ptr<FolderMount> FolderMount::Create(std::filesystem::path rootPath, bool isReadOnly) {
+        auto mount = std::make_unique<FolderMount>(ConstructorKey{}, std::move(rootPath), isReadOnly);
+
+        if (!mount->Initialize()) {
+            return nullptr;
+        }
+
+        return mount;
+    }
+
+    FolderMount::FolderMount(ConstructorKey, std::filesystem::path rootPath, const bool isReadOnly)
     :mRootPath(std::move(rootPath)), mIsReadOnly(isReadOnly), mIsMounted(false)
     {}
 

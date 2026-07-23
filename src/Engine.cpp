@@ -2,6 +2,8 @@
 
 #include "Config/ConfigHelper.h"
 #include "Config/Constants.h"
+#include "FileSystem/Core/VirtualFileSystem.h"
+#include "FileSystem/Mount/FolderMount.h"
 #include "SpinoCore/Config/EngineConfig.h"
 #include "SpinoCore/Logs/EngineLogger.h"
 
@@ -10,6 +12,7 @@
 // =====================================
 struct Engine::InternalModules {
     // Low level submodules
+    std::unique_ptr<FileSystem::Core::VirtualFileSystem> virtualFileSystem = nullptr;
     std::unique_ptr<EngineConfig> engineConfig;
     std::unique_ptr<EngineConfig> appConfig;
 };
@@ -40,6 +43,23 @@ void Engine::Run() {
 }
 
 bool Engine::Initialize() {
+    // 0 - Fixed INFO logs before any configuration
+    EngineLogger::SetLoggingLevel(EngineLogger::Level::Info);
+    EngineLogger::Initialize();
+
+    // 1 - init the filesystem get configuration files
+    mInternalModules->virtualFileSystem = FileSystem::Core::VirtualFileSystem::Create();
+    const auto& vfs = mInternalModules->virtualFileSystem;
+
+    auto configMount = FileSystem::Mount::FolderMount::Create(Config::Constants::CONFIG_DIRECTORY);
+    if (!configMount) {
+        return false;
+    }
+
+    if (!vfs->Mount(Config::Constants::CONFIG_DIRECTORY, std::move(configMount))) {
+        return false;
+    }
+
     SetupConfig();
     SetupLogger();
 
@@ -47,8 +67,8 @@ bool Engine::Initialize() {
 }
 
 void Engine::SetupConfig() {
-    EngineLogger::SetLoggingLevel(static_cast<EngineLogger::Level>(ConfigConstants::LOG_LEVEL));
-    EngineLogger::SetSDLInternalLoggingLevel(static_cast<EngineLogger::Level>(ConfigConstants::INTERNAL_LOG_LEVEL));
+    EngineLogger::SetLoggingLevel(static_cast<EngineLogger::Level>(Config::Constants::LOG_LEVEL));
+    EngineLogger::SetSDLInternalLoggingLevel(static_cast<EngineLogger::Level>(Config::Constants::INTERNAL_LOG_LEVEL));
     EngineLogger::Initialize();
 
     mInternalModules->engineConfig = ConfigHelper::GetInitialConfig();
