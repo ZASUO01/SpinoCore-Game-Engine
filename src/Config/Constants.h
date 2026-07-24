@@ -3,8 +3,9 @@
 #include <string_view>
 
 namespace Config::Constants {
-    // Config
+    // Filesystem
     inline constexpr std::string_view CONFIG_DIRECTORY = "@config";
+    inline constexpr std::string_view ASSETS_DIRECTORY = "@assets";
     inline constexpr std::string_view CONFIG_FILENAME = "config.json";
 
     inline constexpr std::string_view ENGINE_VERSION = "1.0.0";

@@ -60,6 +60,19 @@ bool Engine::Initialize() {
         return false;
     }
 
+    auto assetsMount = FileSystem::Mount::FolderMount::Create(Config::Constants::ASSETS_DIRECTORY);
+    if (!assetsMount) {
+        return false;
+    }
+
+    if (!vfs->Mount(Config::Constants::ASSETS_DIRECTORY, std::move(assetsMount))) {
+        return false;
+    }
+
+    if (!vfs->Exists("@config://config.json")) {
+
+    }
+
     SetupConfig();
     SetupLogger();
 
